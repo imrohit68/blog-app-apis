@@ -6,6 +6,7 @@ import com.rohit.blog.backendBlogApp.exceptions.ResourceNotFoundException;
 import com.rohit.blog.backendBlogApp.payloads.UserDTO;
 import com.rohit.blog.backendBlogApp.repos.UserRepo;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,12 +17,13 @@ import java.util.stream.Collectors;
 
 public class UserImpl implements UserService {
     private final UserRepo userRepo;
+    private final ModelMapper modelMapper;
 
     @Override
     public UserDTO createUser(UserDTO user) {
         User Entityuser = this.dtoToUser(user);
         User savedUser = this.userRepo.save(Entityuser);
-        return this.UserToDto(Entityuser);
+        return this.UserToDto(savedUser);
     }
 
     @Override
@@ -37,7 +39,7 @@ public class UserImpl implements UserService {
         User savedUser = this.userRepo.save(EntityUser);
 
 
-        return this.UserToDto(EntityUser);
+        return this.UserToDto(savedUser);
     }
 
     @Override
@@ -62,23 +64,11 @@ public class UserImpl implements UserService {
         this.userRepo.delete(EntityUser);
     }
     private User dtoToUser(UserDTO user){
-        User EntityUser = new User();
-        EntityUser.setId(user.getId());
-        EntityUser.setName(user.getName());
-        EntityUser.setEmail(user.getEmail());
-        EntityUser.setPassword(user.getPassword());
-        EntityUser.setAbout(user.getAbout());
-
+        User EntityUser = this.modelMapper.map(user,User.class);
         return EntityUser;
     }
     private UserDTO UserToDto(User user){
-        UserDTO userDTO = new UserDTO();
-        userDTO.setId(user.getId());
-        userDTO.setName(user.getName());
-        userDTO.setEmail(user.getEmail());
-        userDTO.setPassword(user.getPassword());
-        userDTO.setAbout(user.getAbout());
-
+        UserDTO userDTO = this.modelMapper.map(user,UserDTO.class);
         return userDTO;
     }
 }

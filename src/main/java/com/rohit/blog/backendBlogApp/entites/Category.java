@@ -10,17 +10,14 @@ import java.util.List;
 
 @Entity
 @NoArgsConstructor
-@Table(name = "users")
 @Getter
 @Setter
-public class User {
+public class Category {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
-    private String name;
-    private String email;
-    private String password;
-    private String about;
-    @OneToMany(mappedBy = "user")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer categoryId;
+    private String categoryTitle;
+    private String categoryDescription;
+    @OneToMany(mappedBy = "category")
     private List<Post> posts = new ArrayList<>();
 }
