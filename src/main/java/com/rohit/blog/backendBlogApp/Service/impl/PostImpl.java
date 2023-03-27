@@ -6,6 +6,7 @@ import com.rohit.blog.backendBlogApp.entites.Post;
 import com.rohit.blog.backendBlogApp.entites.User;
 import com.rohit.blog.backendBlogApp.exceptions.ResourceNotFoundException;
 import com.rohit.blog.backendBlogApp.payloads.CategoryDto;
+import com.rohit.blog.backendBlogApp.payloads.PageResponse;
 import com.rohit.blog.backendBlogApp.payloads.PostDto;
 import com.rohit.blog.backendBlogApp.repos.CategoryRepo;
 import com.rohit.blog.backendBlogApp.repos.PostRepo;
@@ -13,6 +14,10 @@ import com.rohit.blog.backendBlogApp.repos.UserRepo;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -67,10 +72,20 @@ public class PostImpl implements PostService {
     }
 
     @Override
-    public List<PostDto> getAllPost() {
-        List<Post> posts = this.postRepo.findAll();
+    public PageResponse getAllPost(Integer pageNo, Integer pageSize,String sortBy,String sortDirection) {
+        Sort sort = sortDirection.equalsIgnoreCase("asc")?Sort.by(sortBy).ascending():Sort.by(sortBy).descending();
+        Pageable p = PageRequest.of(pageNo,pageSize,sort);
+        Page<Post> posts = this.postRepo.findAll(p);
         List<PostDto> postDto = posts.stream().map((post -> this.modelMapper.map(post,PostDto.class))).collect(Collectors.toList());
-        return postDto;
+        PageResponse response = new PageResponse();
+        response.setContent(postDto);
+        response.setPageNumber(posts.getNumber());
+        response.setPageSize(posts.getSize());
+        response.setTotalElements(posts.getTotalElements());
+        response.setTotalPages(posts.getTotalPages());
+        response.setLastPage(posts.isLast());
+
+        return response;
     }
 
     @Override
@@ -93,6 +108,8 @@ public class PostImpl implements PostService {
 
     @Override
     public List<PostDto> getPostByKeyword(String keyword) {
-        return null;
+        List<Post> posts = this.postRepo.findByPostTitleContaining(keyword);
+        List<PostDto> postDto = posts.stream().map((post -> this.modelMapper.map(post,PostDto.class))).collect(Collectors.toList());
+        return postDto;
     }
 }
