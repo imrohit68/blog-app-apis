@@ -21,7 +21,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
-    @PostMapping("/")
+    @PostMapping("/createUser")
     public ResponseEntity<UserDTO> createUser(@Valid @RequestBody UserDTO userDTO){
         UserDTO createUserDto = this.userService.createUser(userDTO);
         return new ResponseEntity<>(createUserDto, HttpStatus.CREATED);
@@ -38,6 +38,7 @@ public class UserController {
     return  new ResponseEntity(new ApiResponse("User Deleted Successfully",true),HttpStatus.OK);
     }
     @GetMapping("/")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UserDTO>> getAllUsers(){
         return ResponseEntity.ok(this.userService.getAllUser());
     }

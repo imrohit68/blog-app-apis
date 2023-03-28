@@ -74,6 +74,8 @@ public class UserImpl implements UserService {
     public void deleteUser(Integer userId) {
         User EntityUser = this.userRepo
                 .findById(userId).orElseThrow(()-> new ResourceNotFoundException("User","id",userId));
+        Set<Role> roleSet = new HashSet<>();
+        EntityUser.setRoles(roleSet);
         this.userRepo.delete(EntityUser);
     }
     private User dtoToUser(UserDTO user){
